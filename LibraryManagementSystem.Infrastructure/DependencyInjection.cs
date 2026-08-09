@@ -27,7 +27,7 @@ namespace LibraryManagementSystem.Infrastructure
 
             services.AddDbContext<ApplicationDbContext>(option =>
             {
-                option.UseSqlServer(configuration.GetConnectionString("DefaultConnection"));
+                option.UseNpgsql(configuration.GetConnectionString("DefaultConnection"));
             });
 
             services.AddIdentity<User, IdentityRole>(option =>
