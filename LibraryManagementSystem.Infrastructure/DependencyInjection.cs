@@ -1,8 +1,10 @@
 ﻿using LibraryManagementSystem.Application.Authentication.Interface;
+using LibraryManagementSystem.Application.Book.Interface;
 using LibraryManagementSystem.Domain.Entity;
 using LibraryManagementSystem.Infrastructure.Data;
 using LibraryManagementSystem.Infrastructure.Helper;
 using LibraryManagementSystem.Infrastructure.Repository.Authentication;
+using LibraryManagementSystem.Infrastructure.Repository.BookCatalog;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -22,6 +24,7 @@ namespace LibraryManagementSystem.Infrastructure
         public static IServiceCollection InfrastructureDependencies(this IServiceCollection services, IConfiguration configuration)
         {
             services.AddScoped<IUserService, UserService>();
+            services.AddScoped<IBookService, BookService>();
 
             services.AddScoped<AuthHelper>();
 
