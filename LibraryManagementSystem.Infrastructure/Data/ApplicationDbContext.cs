@@ -15,5 +15,16 @@ namespace LibraryManagementSystem.Infrastructure.Data
         {
                 
         }
+
+        public DbSet<Book> Books { get; set; }
+
+
+        protected override void OnModelCreating(ModelBuilder builder)
+        {
+            builder.Entity<Book>().HasKey(c => c.id);
+            base.OnModelCreating(builder);
+        }
     }
+
+    
 }
