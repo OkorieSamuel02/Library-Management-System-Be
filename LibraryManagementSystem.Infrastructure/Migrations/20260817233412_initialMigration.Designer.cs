@@ -12,8 +12,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace LibraryManagementSystem.Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20260810002023_initial")]
-    partial class initial
+    [Migration("20260817233412_initialMigration")]
+    partial class initialMigration
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -64,6 +64,105 @@ namespace LibraryManagementSystem.Infrastructure.Migrations
                     b.ToTable("Books");
                 });
 
+            modelBuilder.Entity("LibraryManagementSystem.Domain.Entity.Loan", b =>
+                {
+                    b.Property<Guid>("id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<bool>("IsFinePaid")
+                        .HasColumnType("boolean");
+
+                    b.Property<Guid>("bookId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("dueDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<decimal>("fineAmount")
+                        .HasColumnType("numeric");
+
+                    b.Property<DateTime>("issueDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("memberId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime?>("returnDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("status")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("id");
+
+                    b.HasIndex("bookId");
+
+                    b.HasIndex("memberId");
+
+                    b.ToTable("Loans");
+                });
+
+            modelBuilder.Entity("LibraryManagementSystem.Domain.Entity.Member", b =>
+                {
+                    b.Property<Guid>("id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("contactNumber")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("email")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("membershipDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("name")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("phoneNumber")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("id");
+
+                    b.ToTable("Members");
+                });
+
+            modelBuilder.Entity("LibraryManagementSystem.Domain.Entity.Setting", b =>
+                {
+                    b.Property<int>("id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("id"));
+
+                    b.Property<decimal>("UnpaidFinethreshold")
+                        .HasColumnType("numeric");
+
+                    b.Property<decimal>("fineRatePerDay")
+                        .HasColumnType("numeric");
+
+                    b.Property<int>("loanPeriodDays")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("maxActiveLoans")
+                        .HasColumnType("integer");
+
+                    b.HasKey("id");
+
+                    b.ToTable("Settings");
+                });
+
             modelBuilder.Entity("LibraryManagementSystem.Domain.Entity.User", b =>
                 {
                     b.Property<string>("Id")
@@ -106,8 +205,9 @@ namespace LibraryManagementSystem.Infrastructure.Migrations
                     b.Property<bool>("PhoneNumberConfirmed")
                         .HasColumnType("boolean");
 
-                    b.Property<int>("Roles")
-                        .HasColumnType("integer");
+                    b.Property<string>("Roles")
+                        .IsRequired()
+                        .HasColumnType("text");
 
                     b.Property<string>("SecurityStamp")
                         .HasColumnType("text");
@@ -118,6 +218,18 @@ namespace LibraryManagementSystem.Infrastructure.Migrations
                     b.Property<string>("UserName")
                         .HasMaxLength(256)
                         .HasColumnType("character varying(256)");
+
+                    b.Property<string>("contactNumber")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("firstName")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("lastName")
+                        .IsRequired()
+                        .HasColumnType("text");
 
                     b.HasKey("Id");
 
@@ -263,6 +375,25 @@ namespace LibraryManagementSystem.Infrastructure.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
+            modelBuilder.Entity("LibraryManagementSystem.Domain.Entity.Loan", b =>
+                {
+                    b.HasOne("LibraryManagementSystem.Domain.Entity.Book", "Book")
+                        .WithMany("loans")
+                        .HasForeignKey("bookId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("LibraryManagementSystem.Domain.Entity.Member", "Member")
+                        .WithMany("loans")
+                        .HasForeignKey("memberId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Book");
+
+                    b.Navigation("Member");
+                });
+
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
                 {
                     b.HasOne("Microsoft.AspNetCore.Identity.IdentityRole", null)
@@ -312,6 +443,16 @@ namespace LibraryManagementSystem.Infrastructure.Migrations
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("LibraryManagementSystem.Domain.Entity.Book", b =>
+                {
+                    b.Navigation("loans");
+                });
+
+            modelBuilder.Entity("LibraryManagementSystem.Domain.Entity.Member", b =>
+                {
+                    b.Navigation("loans");
                 });
 #pragma warning restore 612, 618
         }

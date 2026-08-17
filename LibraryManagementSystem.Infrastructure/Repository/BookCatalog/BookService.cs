@@ -7,6 +7,8 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using LibraryManagementSystem.Application.Book.DataTransferObject.Request;
 using Microsoft.AspNetCore.Http.HttpResults;
+using AutoMapper;
+using LibraryManagementSystem.Application.BookCatalog.Query;
 
 namespace LibraryManagementSystem.Infrastructure.Repository.BookCatalog
 {
@@ -14,10 +16,12 @@ namespace LibraryManagementSystem.Infrastructure.Repository.BookCatalog
     {
         private readonly ApplicationDbContext _context;
         private readonly ILogger<BookService> _logger;
-        public BookService(ApplicationDbContext context, ILogger<BookService> logger)
+        private readonly IMapper _mapper;
+        public BookService(ApplicationDbContext context, ILogger<BookService> logger, IMapper mapper)
         {
             _context = context;  
             _logger = logger;
+            _mapper = mapper;
         }
         public async Task<Result<string>> CreateBookAsync(CreateBookRequestModel create)
         {
@@ -36,10 +40,10 @@ namespace LibraryManagementSystem.Infrastructure.Repository.BookCatalog
                     isbn = create.isbn,
                     title = create.title,
                     genre = create.genre,
-                    totalCopies = create.numberOfCopies,
                     createAt = DateTime.UtcNow,
                     updatedAt = DateTime.UtcNow,
                 };
+                book.BookOnCreation(create.numberOfCopies);
 
                  await _context.Books.AddAsync(book);
                 var saved = await _context.SaveChangesAsync();
@@ -122,9 +126,47 @@ namespace LibraryManagementSystem.Infrastructure.Repository.BookCatalog
             }
         }
 
-        public Task<Result<IEnumerable<BookResponseModel>>> ViewBooksAsync()
+        public async Task<Result<IList<BookResponseModel>>> ViewBooksAsync(GetBooksQuery booksQuery)
         {
-            throw new NotImplementedException();
+            try
+            {
+                 IQueryable<Book> books =  _context.Books.AsQueryable();
+
+                var pageNumber = booksQuery.pageNumber ?? 1;
+                var pageSize = booksQuery.pageSize ?? 10;
+
+                if (!string.IsNullOrEmpty(booksQuery.isbn))
+                {
+                    books = books.Where(c => c.isbn.Contains(booksQuery.isbn));
+                }
+
+                if (!string.IsNullOrEmpty(booksQuery.author))
+                {
+                    books = books.Where(c => c.author.Contains(booksQuery.author));
+                }
+
+                if (!string.IsNullOrEmpty(booksQuery.title))
+                {
+                    books = books.Where(c => c.title.Contains(booksQuery.title));
+                }
+
+              books =  books.Skip((pageNumber - 1) * pageSize)
+                     .Take(pageSize);
+
+                 var result = await books.ToListAsync();
+                if(result.Count <= 0)
+                {
+                    return Result<IList<BookResponseModel>>.Failure("No Book Found", System.Net.HttpStatusCode.InternalServerError);
+                }
+
+                var Response = _mapper.Map<IList<BookResponseModel>>(result);
+                return Result<IList<BookResponseModel>>.Success("Books retrieved successfuly", Response, System.Net.HttpStatusCode.OK);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"An unexpected error occurred: {ex.Message}");
+                return Result<IList<BookResponseModel>>.Failure($"An unexpected error occurred", System.Net.HttpStatusCode.InternalServerError);
+            }
         }
     }
 }
