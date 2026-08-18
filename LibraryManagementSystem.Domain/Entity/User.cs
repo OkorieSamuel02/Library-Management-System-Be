@@ -10,6 +10,9 @@ namespace LibraryManagementSystem.Domain.Entity
 {
     public class User : IdentityUser
     {
+        public string firstName {  get; set; } = string.Empty;
+        public string lastName { get; set; } = string.Empty;
+        public string contactNumber {  get; set; } = string.Empty;
         public Roles Roles { get; set; }
     }
 }

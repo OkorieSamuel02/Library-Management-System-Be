@@ -1,6 +1,9 @@
-﻿using LibraryManagementSystem.Domain.Entity;
+﻿using LibraryManagementSystem.Application.Common;
+using LibraryManagementSystem.Domain.Entity;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
@@ -14,9 +17,11 @@ namespace LibraryManagementSystem.Infrastructure.Helper
     public class AuthHelper
     {
         private readonly IConfiguration _configuration;
-        public AuthHelper(IConfiguration configuration)
+        private readonly UserManager<User> _userManager;
+        public AuthHelper(IConfiguration configuration, UserManager<User> userManager)
         {
               _configuration = configuration;
+             _userManager = userManager;
         }
         public string GenerateToken(User user)
         {
@@ -54,6 +59,16 @@ namespace LibraryManagementSystem.Infrastructure.Helper
                 signingCredentials: credentials);
 
             return new JwtSecurityTokenHandler().WriteToken(token);
+        }
+
+        public string PasswordGenerator(string name)
+        {
+            var random = new Random();
+
+            var number = random.Next(1000, 9999);
+            var firstLetter = char.ToUpper(name[0]);
+
+            return $"{firstLetter}{name.Substring(1)}@{number}";
         }
     }
 }

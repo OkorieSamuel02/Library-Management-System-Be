@@ -64,12 +64,32 @@ namespace LibraryManagementSystem.Infrastructure.Repository.Authentication
                     return Result<string>.Failure("User with provided email already exist", System.Net.HttpStatusCode.Conflict);
                 }
 
+                var role = Domain.Enums.Roles.Admin;
+
+                switch (register.role)
+                {
+                    case 1:
+                        role = Domain.Enums.Roles.Admin;
+                        break;
+                    case 2:
+                        role = Domain.Enums.Roles.Librarian;
+                        break;
+                    case 3:
+                        role = Domain.Enums.Roles.Member;
+                        break;
+                    default:
+                        role = Domain.Enums.Roles.Member;
+                        break;
+
+                }
+
                 var user = new User
                 {
                     Email = register.email,
                     UserName = register.email,
-                    PhoneNumber = register.PhoneNumber,
-                    Roles = Domain.Enums.Roles.Librarian,
+                    PhoneNumber = register.contactNumber,
+                    contactNumber = register.contactNumber,
+                    Roles = role
                 };
 
                 var createUserAsync = await _userManager.CreateAsync(user, register.password);

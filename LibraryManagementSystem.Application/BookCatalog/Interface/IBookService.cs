@@ -1,5 +1,6 @@
 ﻿using LibraryManagementSystem.Application.Book.DataTransferObject.Request;
 using LibraryManagementSystem.Application.Book.DataTransferObject.Response;
+using LibraryManagementSystem.Application.BookCatalog.Query;
 using LibraryManagementSystem.Application.Common;
 using System;
 using System.Collections.Generic;
@@ -14,6 +15,7 @@ namespace LibraryManagementSystem.Application.Book.Interface
         Task<Result<string>> CreateBookAsync(CreateBookRequestModel create);
         Task<Result<string>> UpdateBookAsync(UpdateBookRequestModel update);
         Task<Result<string>> RemoveBookAsync(string isbn);
-        Task<Result<IEnumerable<BookResponseModel>>> ViewBooksAsync();
+        Task<Result<IList<BookResponseModel>>> ViewBooksAsync(GetBooksQuery booksQuery);
+      
     }
 }

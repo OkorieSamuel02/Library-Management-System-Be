@@ -13,11 +13,11 @@ namespace LibraryManagementSystem.Domain.Entity
         public string author { get; set; } = string.Empty;
         public string isbn {  get; set; } = string.Empty;
         public string genre {  get; set; } = string.Empty;
-        public int totalCopies { get; set; }
+        public int totalCopies { get; private set; }
         public int availableCopies { get; private set; }
         public DateTime createAt { get; set; } = DateTime.UtcNow;
         public DateTime updatedAt { get; set; } = DateTime.UtcNow;
-
+        public ICollection<Loan>? loans { get; private set; } = new List<Loan>();   
 
         public void BooksUpdate(int newCopies)
         {
@@ -35,16 +35,32 @@ namespace LibraryManagementSystem.Domain.Entity
             updatedAt = DateTime.UtcNow;
         }
 
-        public void BorrowBook(int quantity)
+        public void BorrowBook()
         {
-            if (quantity <= 0)
-                throw new ArgumentException("Quantity must be greater than zero.");
 
+            if (availableCopies <= 0)
+                throw new InvalidOperationException("Qauntity cannot be less than borrowed copies.");
 
-            if (quantity > availableCopies)
-                throw new InvalidOperationException("Total copies cannot be less than borrowed copies.");
+            availableCopies  --;
 
-            availableCopies  -= quantity;
+        }
+
+        public void BookOnCreation(int copies)
+        {
+            if (copies < 0)
+                throw new ArgumentException("Total copies cannot be negative.");
+
+            if(copies < availableCopies)
+                throw new InvalidOperationException("Total copies cannot be less than available copies.");
+
+            totalCopies = copies;
+            availableCopies = copies;
+        }
+
+        public void ReturnBook()
+        {
+        
+            availableCopies ++;
 
         }
     }

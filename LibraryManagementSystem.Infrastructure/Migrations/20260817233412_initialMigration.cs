@@ -31,7 +31,10 @@ namespace LibraryManagementSystem.Infrastructure.Migrations
                 columns: table => new
                 {
                     Id = table.Column<string>(type: "text", nullable: false),
-                    Roles = table.Column<int>(type: "integer", nullable: false),
+                    firstName = table.Column<string>(type: "text", nullable: false),
+                    lastName = table.Column<string>(type: "text", nullable: false),
+                    contactNumber = table.Column<string>(type: "text", nullable: false),
+                    Roles = table.Column<string>(type: "text", nullable: false),
                     UserName = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: true),
                     NormalizedUserName = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: true),
                     Email = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: true),
@@ -50,6 +53,58 @@ namespace LibraryManagementSystem.Infrastructure.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_AspNetUsers", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Books",
+                columns: table => new
+                {
+                    id = table.Column<Guid>(type: "uuid", nullable: false),
+                    title = table.Column<string>(type: "text", nullable: false),
+                    author = table.Column<string>(type: "text", nullable: false),
+                    isbn = table.Column<string>(type: "text", nullable: false),
+                    genre = table.Column<string>(type: "text", nullable: false),
+                    totalCopies = table.Column<int>(type: "integer", nullable: false),
+                    availableCopies = table.Column<int>(type: "integer", nullable: false),
+                    createAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    updatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Books", x => x.id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Members",
+                columns: table => new
+                {
+                    id = table.Column<Guid>(type: "uuid", nullable: false),
+                    name = table.Column<string>(type: "text", nullable: false),
+                    email = table.Column<string>(type: "text", nullable: false),
+                    contactNumber = table.Column<string>(type: "text", nullable: false),
+                    phoneNumber = table.Column<string>(type: "text", nullable: false),
+                    membershipDate = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    Status = table.Column<string>(type: "text", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Members", x => x.id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Settings",
+                columns: table => new
+                {
+                    id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    loanPeriodDays = table.Column<int>(type: "integer", nullable: false),
+                    fineRatePerDay = table.Column<decimal>(type: "numeric", nullable: false),
+                    maxActiveLoans = table.Column<int>(type: "integer", nullable: false),
+                    UnpaidFinethreshold = table.Column<decimal>(type: "numeric", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Settings", x => x.id);
                 });
 
             migrationBuilder.CreateTable(
@@ -158,6 +213,37 @@ namespace LibraryManagementSystem.Infrastructure.Migrations
                         onDelete: ReferentialAction.Cascade);
                 });
 
+            migrationBuilder.CreateTable(
+                name: "Loans",
+                columns: table => new
+                {
+                    id = table.Column<Guid>(type: "uuid", nullable: false),
+                    issueDate = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    dueDate = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    returnDate = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    fineAmount = table.Column<decimal>(type: "numeric", nullable: false),
+                    bookId = table.Column<Guid>(type: "uuid", nullable: false),
+                    memberId = table.Column<Guid>(type: "uuid", nullable: false),
+                    status = table.Column<string>(type: "text", nullable: false),
+                    IsFinePaid = table.Column<bool>(type: "boolean", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Loans", x => x.id);
+                    table.ForeignKey(
+                        name: "FK_Loans_Books_bookId",
+                        column: x => x.bookId,
+                        principalTable: "Books",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_Loans_Members_memberId",
+                        column: x => x.memberId,
+                        principalTable: "Members",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
             migrationBuilder.CreateIndex(
                 name: "IX_AspNetRoleClaims_RoleId",
                 table: "AspNetRoleClaims",
@@ -194,6 +280,16 @@ namespace LibraryManagementSystem.Infrastructure.Migrations
                 table: "AspNetUsers",
                 column: "NormalizedUserName",
                 unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Loans_bookId",
+                table: "Loans",
+                column: "bookId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Loans_memberId",
+                table: "Loans",
+                column: "memberId");
         }
 
         /// <inheritdoc />
@@ -215,10 +311,22 @@ namespace LibraryManagementSystem.Infrastructure.Migrations
                 name: "AspNetUserTokens");
 
             migrationBuilder.DropTable(
+                name: "Loans");
+
+            migrationBuilder.DropTable(
+                name: "Settings");
+
+            migrationBuilder.DropTable(
                 name: "AspNetRoles");
 
             migrationBuilder.DropTable(
                 name: "AspNetUsers");
+
+            migrationBuilder.DropTable(
+                name: "Books");
+
+            migrationBuilder.DropTable(
+                name: "Members");
         }
     }
 }
