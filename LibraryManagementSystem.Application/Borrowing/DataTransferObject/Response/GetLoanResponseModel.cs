@@ -12,13 +12,25 @@ namespace LibraryManagementSystem.Application.Borrowing.DataTransferObject.Respo
     public class GetLoanResponseModel
     {
         public Guid id { get; set; }
-        public DateTime issueDate { get; set; } = DateTime.UtcNow;
-        public DateTime dueDate { get; private set; }
+        public DateTime issueDate { get; set; } 
+        public DateTime dueDate { get;  set; }
         public DateTime? returnDate { get; set; }
-        public decimal fineAmount { get; private set; } = 0;
+        public decimal fineAmount { get; set; } 
         public BookResponseModel? Book { get; set; }
         public MemberResponseModel? Member { get; set; }
-        public string status { get; set; }
-        public bool IsFinePaid { get; set; }
+        public string? status { get; set; }
+        public bool isFinePaid { get; set; }
+    }
+
+    public class GetPersonalLoanResponse
+    {
+        public Guid id { get; set; }
+        public DateTime issueDate { get; set; }
+        public DateTime dueDate { get;  set; }
+        public DateTime? returnDate { get; set; }
+        public decimal fineAmount { get;  set; } 
+        public BookResponseModel? Book { get; set; }
+        public string? status { get; set; }
+        public bool isFinePaid { get; set; }
     }
 }

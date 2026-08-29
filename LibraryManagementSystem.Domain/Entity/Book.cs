@@ -18,6 +18,7 @@ namespace LibraryManagementSystem.Domain.Entity
         public DateTime createAt { get; set; } = DateTime.UtcNow;
         public DateTime updatedAt { get; set; } = DateTime.UtcNow;
         public ICollection<Loan>? loans { get; private set; } = new List<Loan>();   
+        public ICollection<Reservation> reservation { get; set; } = new List<Reservation>();
 
         public void BooksUpdate(int newCopies)
         {

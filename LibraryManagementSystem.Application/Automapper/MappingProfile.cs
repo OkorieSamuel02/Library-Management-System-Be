@@ -9,6 +9,7 @@ using LibraryManagementSystem.Domain.Entity;
 using LibraryManagementSystem.Application.Book.DataTransferObject.Response;
 using LibraryManagementSystem.Application.Borrowing.DataTransferObject.Response;
 using LibraryManagementSystem.Application.Membership.DataTransferObject.Response;
+using LibraryManagementSystem.Application.Reserve.DataTransferObject.Response;
 
 namespace LibraryManagementSystem.Application.Automapper
 {
@@ -19,6 +20,7 @@ namespace LibraryManagementSystem.Application.Automapper
              CreateMap<LibraryManagementSystem.Domain.Entity.Book, BookResponseModel>().ReverseMap();
             CreateMap<Loan, GetLoanResponseModel>().ReverseMap();
             CreateMap<Member, MemberResponseModel>().ReverseMap();
+            CreateMap<Reservation, GetReservationResponseModel>().ReverseMap();
         }
     }
 }

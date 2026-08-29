@@ -18,7 +18,8 @@ namespace LibraryManagementSystem.Application.Membership.Query
         public string? memberEmail { get; set; }
         public int? pageNumber { get; set; }
         public int? pageSize { get; set; }
-        public string userId { get; set; }
+        public string userId { get; set; } 
+        public string id { get; set; }
     }
 
     public class GetMemberQueryHandler : IRequestHandler<GetMemberQuery, Result<IList<MemberResponseModel>>>
@@ -30,7 +31,7 @@ namespace LibraryManagementSystem.Application.Membership.Query
         }
         public async Task<Result<IList<MemberResponseModel>>> Handle(GetMemberQuery request, CancellationToken cancellationToken)
         {
-            return await _memberService.GetMemberAsync(request.memberEmail, request.active, request.pageNumber, request.pageSize, request.userId);
+            return await _memberService.GetMemberAsync(request);
         }
     }
     

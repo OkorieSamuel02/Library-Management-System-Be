@@ -17,6 +17,7 @@ namespace LibraryManagementSystem.Domain.Entity
         public DateTime membershipDate { get; set; } = DateTime.UtcNow;
         public MemberStatus Status {  get; private set; } = Enums.MemberStatus.Active;
         public ICollection<Loan>? loans { get; set; } = new List<Loan>();
+        public ICollection<Reservation> reservation { get; set; } = new List<Reservation>();
 
 
         public void MemberStatus(bool value)

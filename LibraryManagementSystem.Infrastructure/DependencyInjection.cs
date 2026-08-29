@@ -4,6 +4,7 @@ using LibraryManagementSystem.Application.Book.Interface;
 using LibraryManagementSystem.Application.Borrowing.Interface;
 using LibraryManagementSystem.Application.ConfigSetting.Interface;
 using LibraryManagementSystem.Application.Membership.Interface;
+using LibraryManagementSystem.Application.Reserve;
 using LibraryManagementSystem.Domain.Entity;
 using LibraryManagementSystem.Infrastructure.Data;
 using LibraryManagementSystem.Infrastructure.Helper;
@@ -12,6 +13,7 @@ using LibraryManagementSystem.Infrastructure.Repository.BookCatalog;
 using LibraryManagementSystem.Infrastructure.Repository.Borrowing;
 using LibraryManagementSystem.Infrastructure.Repository.ConfigSettings;
 using LibraryManagementSystem.Infrastructure.Repository.MemberShip;
+using LibraryManagementSystem.Infrastructure.Repository.Reserves;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -36,6 +38,7 @@ namespace LibraryManagementSystem.Infrastructure
             services.AddScoped<IMemberService, MemberService>();
             services.AddScoped<IBorrowService, BorrowService>();
             services.AddScoped<ISettingsService, SettingsService>();
+            services.AddScoped<IReservationService, ReservationService>();
 
             services.AddScoped<AuthHelper>();
 

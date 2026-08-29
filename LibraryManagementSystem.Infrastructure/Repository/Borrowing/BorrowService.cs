@@ -37,7 +37,7 @@ namespace LibraryManagementSystem.Infrastructure.Repository.Borrowing
             try
             {
                 var user = await _context.Users.FirstOrDefaultAsync(c => c.Id == userId);
-                IQueryable<Loan> loans = _context.Loans.Include(c => c.Member).AsQueryable();
+                IQueryable<Loan> loans = _context.Loans.Include(c => c.Member).Include(c => c.Book).AsQueryable();
 
                 var pageNumber = query.pageNumber ?? 1;
                 var pageSize = query.pageSize ?? 10;
@@ -57,6 +57,16 @@ namespace LibraryManagementSystem.Infrastructure.Repository.Borrowing
                     if (!string.IsNullOrEmpty(query.memberEmail))
                     {
                         loans = loans.Where(c => c.Member.email == query.memberEmail);
+                    }
+
+                    if (!string.IsNullOrEmpty(query.LoanId))
+                    {
+                        loans = loans.Where(c => c.id.ToString() == query.LoanId);
+                    }
+
+                    if (!string.IsNullOrEmpty(query.memberId))
+                    {
+                        loans = loans.Where(c => c.memberId.ToString() == query.memberId);
                     }
 
                     loans = loans.OrderByDescending(c => c.dueDate);
@@ -81,13 +91,22 @@ namespace LibraryManagementSystem.Infrastructure.Repository.Borrowing
                     loans = loans.Skip((pageNumber - 1) * pageSize).Take(pageSize);
 
                     var result = await loans.ToListAsync();
-                    if (result.Count <= 0)
-                    {
-                        return Result<IList<GetLoanResponseModel>>.Failure("No loan Found", System.Net.HttpStatusCode.InternalServerError);
-                    }
 
-                    var response = _mapper.Map<IList<GetLoanResponseModel>>(result);
-                    return Result<IList<GetLoanResponseModel>>.Success("Loans retrieved successfuly", response, System.Net.HttpStatusCode.OK);
+                    var personalLoans = _mapper.Map<IList<GetPersonalLoanResponse>>(result);
+
+                    var response = personalLoans.Select(x => new GetLoanResponseModel
+                    {
+                        id = x.id,
+                        issueDate = x.issueDate,
+                         dueDate = x.dueDate,
+                        returnDate = x.returnDate,
+                        fineAmount = x.fineAmount,
+                        Book = x.Book,
+                        status = x.status,
+                        isFinePaid = x.isFinePaid
+                    }).ToList();
+
+                    return Result<IList<GetLoanResponseModel>>.Success("Loans retrieved successfully", response, HttpStatusCode.OK);
                 }
             }
             catch (Exception ex)
@@ -170,6 +189,7 @@ namespace LibraryManagementSystem.Infrastructure.Repository.Borrowing
 
         public async Task<Result<string>> ProcessBookReturn(string isbn)
         {
+            var transaction = await _context.Database.BeginTransactionAsync();
             try
             {
                 var currentDate = DateTime.UtcNow;
@@ -190,13 +210,25 @@ namespace LibraryManagementSystem.Infrastructure.Repository.Borrowing
 
                 loans.Book.ReturnBook();
 
+                var reservation = await _context.Reservations.Where(c => c.bookId == loans.bookId && c.reservationStatus == Domain.Enums.ReservationStatus.Pending).
+                                      OrderBy(c => c.reservationDate).FirstOrDefaultAsync();
+
+                if (reservation != null)
+                {
+                    reservation.UpdateStatus(Domain.Enums.ReservationStatus.Held);
+
+                    reservation.SetHoldExpiration(currentDate);
+                }
+
+
                 await _context.SaveChangesAsync();
-
+               await transaction.CommitAsync();
                 return Result<string>.Success($"loan processed", loans.id.ToString(), System.Net.HttpStatusCode.OK);
-
+                
             }
             catch (Exception ex)
             {
+               await transaction.RollbackAsync();
                 _logger.LogError($"An unexpected error occurred: {ex.Message}");
                 return Result<string>.Failure($"An unexpected error occurred", System.Net.HttpStatusCode.InternalServerError);
             }

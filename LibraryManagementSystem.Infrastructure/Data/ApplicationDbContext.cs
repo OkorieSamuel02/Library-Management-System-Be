@@ -20,6 +20,7 @@ namespace LibraryManagementSystem.Infrastructure.Data
         public DbSet<Member> Members { get; set; }
         public DbSet<Setting> Settings { get; set; }
         public DbSet<Loan> Loans { get; set; }
+        public DbSet<Reservation> Reservations { get; set; }
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
@@ -31,6 +32,10 @@ namespace LibraryManagementSystem.Infrastructure.Data
             builder.Entity<Loan>().Property(c => c.status).HasConversion<string>();
             builder.Entity<Loan>().HasOne(c => c.Member).WithMany(c => c.loans).HasForeignKey(c => c.memberId);
             builder.Entity<Loan>().HasOne(c => c.Book).WithMany(c => c.loans).HasForeignKey(c => c.bookId);
+            builder.Entity<Reservation>().HasKey(c => c.id);
+            builder.Entity<Reservation>().HasOne(r => r.books).WithMany(b => b.reservation).HasForeignKey(r => r.bookId);
+            builder.Entity<Reservation>().HasOne(r => r.members).WithMany(m => m.reservation).HasForeignKey(r => r.MemberId);
+            builder.Entity<Reservation>().Property(c => c.reservationStatus).HasConversion<string>();
             base.OnModelCreating(builder);
         }
     }
