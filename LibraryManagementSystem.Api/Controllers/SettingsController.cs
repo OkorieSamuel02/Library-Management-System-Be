@@ -21,7 +21,7 @@ namespace LibraryManagementSystem.Api.Controllers
         
         [HttpPost]
         [Route("settings")]
-        [Authorize(Roles = "Admin,Librarian")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> CreateSettings(CreateSettingCommand command)
         {
             var result = await _mediator.Send(command);
@@ -30,7 +30,7 @@ namespace LibraryManagementSystem.Api.Controllers
 
         [HttpPut]
         [Route("settings")]
-        [Authorize(Roles = "Admin,Librarian")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> UpdateSettings(UpdateSettingCommand command)
         {
             var result = await _mediator.Send(command);

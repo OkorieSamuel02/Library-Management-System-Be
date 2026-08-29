@@ -52,7 +52,7 @@ namespace LibraryManagementSystem.Api.Controllers
         [HttpGet]
         [Route("member")]
         [Authorize(Roles = "Admin,Librarian,Member")]
-        public async Task<IActionResult> GetAllBooks(bool? active, string? memberEmail, int? pageNumber, int? pageSize)
+        public async Task<IActionResult> GetAllBooks(bool? active, string? memberEmail, int? pageNumber, int? pageSize, string? id)
         {
             var user = User.FindFirstValue(ClaimTypes.NameIdentifier);
             var query = new GetMemberQuery()
@@ -61,7 +61,8 @@ namespace LibraryManagementSystem.Api.Controllers
                 memberEmail = memberEmail,
                 pageNumber = pageNumber,
                 pageSize = pageSize,
-                userId = user!
+                userId = user!,
+                id = id
             };
             var result = await _mediator.Send(query);
             return StatusCode((int)result.statusCode, result);

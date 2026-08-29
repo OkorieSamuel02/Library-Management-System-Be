@@ -14,6 +14,8 @@ namespace LibraryManagementSystem.Application.Membership.Query
     {
         public bool? active { get; set; }
         public bool? isDue {  get; set; }
+        public string? LoanId { get; set; }
+        public string? memberId { get; set; }
         public string? memberEmail { get; set; }
         public int? pageNumber { get; set; }
         public int? pageSize { get; set; }

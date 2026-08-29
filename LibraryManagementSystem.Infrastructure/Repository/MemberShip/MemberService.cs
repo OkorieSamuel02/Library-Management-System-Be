@@ -5,6 +5,7 @@ using LibraryManagementSystem.Application.Common;
 using LibraryManagementSystem.Application.Membership.DataTransferObject.Request;
 using LibraryManagementSystem.Application.Membership.DataTransferObject.Response;
 using LibraryManagementSystem.Application.Membership.Interface;
+using LibraryManagementSystem.Application.Membership.Query;
 using LibraryManagementSystem.Domain.Entity;
 using LibraryManagementSystem.Infrastructure.Data;
 using LibraryManagementSystem.Infrastructure.Helper;
@@ -115,28 +116,33 @@ namespace LibraryManagementSystem.Infrastructure.Repository.MemberShip
             }
         }
 
-        public async Task<Result<IList<MemberResponseModel>>> GetMemberAsync(string? email, bool? isActive, int? pageNumber, int? pageSize, string? userId)
+        public async Task<Result<IList<MemberResponseModel>>> GetMemberAsync(GetMemberQuery query)
         {
             try
             {
-                var user = await _context.Users.FirstOrDefaultAsync(c => c.Id == userId);
+                var user = await _context.Users.FirstOrDefaultAsync(c => c.Id == query.userId);
                 IQueryable<Member> members = _context.Members.AsQueryable();
 
-               var PageSize = pageSize ?? 10;
-                var PageNumber = pageNumber ?? 1;
+               var PageSize = query.pageSize ?? 10;
+                var PageNumber = query.pageNumber ?? 1;
 
                 if(user.Roles == Domain.Enums.Roles.Admin || user.Roles == Domain.Enums.Roles.Librarian)
                 {
-                    if (!string.IsNullOrEmpty(email))
+                    if (!string.IsNullOrEmpty(query.memberEmail))
                     {
-                        members = members.Where(c => c.email == email);
+                        members = members.Where(c => c.email == query.memberEmail);
                     }
 
-                    if (isActive.HasValue)
+                    if (query.active.HasValue)
                     {
                         members = members.Where(c => c.Status == Domain.Enums.MemberStatus.Active);
                     }
 
+
+                    if (!string.IsNullOrEmpty(query.id))
+                    {
+                        members = members.Where(c => c.id.ToString() == query.id);
+                    }
                     members = members.Skip((PageNumber - 1) * PageSize).Take(PageSize);
 
                     var result = await members.ToListAsync();

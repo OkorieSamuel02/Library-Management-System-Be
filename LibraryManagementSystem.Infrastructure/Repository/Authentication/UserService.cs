@@ -78,7 +78,7 @@ namespace LibraryManagementSystem.Infrastructure.Repository.Authentication
                         role = Domain.Enums.Roles.Member;
                         break;
                     default:
-                        role = Domain.Enums.Roles.Member;
+                        role = Domain.Enums.Roles.Librarian;
                         break;
 
                 }

@@ -42,7 +42,7 @@ namespace LibraryManagementSystem.Api.Controllers
         [HttpGet]
         [Route("loan")]
         [Authorize(Roles = "Admin,Librarian,Member")]
-        public async Task<IActionResult> GetAllLoans(bool? active, bool? isDue, string? memberEmail, int? pageNumber, int? pageSize)
+        public async Task<IActionResult> GetAllLoans(bool? active, bool? isDue, string? memberEmail, int? pageNumber, int? pageSize, string? loanId, string? memberId)
         {
             var user = User.FindFirstValue(ClaimTypes.NameIdentifier); 
             var query = new GetAllLoanQuery()
@@ -52,7 +52,9 @@ namespace LibraryManagementSystem.Api.Controllers
                 memberEmail = memberEmail,
                 pageNumber = pageNumber,
                 pageSize = pageSize,
-                userId = user!
+                userId = user!,
+                memberId = memberId,
+                LoanId = loanId               
             };
             var result = await _mediator.Send(query);
             return StatusCode((int)result.statusCode, result);
