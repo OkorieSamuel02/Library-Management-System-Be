@@ -1,4 +1,5 @@
 ﻿using LibraryManagementSystem.Application.Authentication.DataTransferObject.Request;
+using LibraryManagementSystem.Application.Authentication.DataTransferObject.Response;
 using LibraryManagementSystem.Application.Common;
 using System;
 using System.Collections.Generic;
@@ -11,6 +12,6 @@ namespace LibraryManagementSystem.Application.Authentication.Interface
     public interface IUserService
     {
         Task<Result<string>> CreateUserAsync(RegisterRequestModel register);
-        Task<Result<string>> LoginAsync(string email, string password);
+        Task<Result<LoginResponseModel>> LoginAsync(string email, string password);
     }
 }

@@ -1,4 +1,5 @@
 ﻿using LibraryManagementSystem.Application.Authentication.DataTransferObject.Request;
+using LibraryManagementSystem.Application.Authentication.DataTransferObject.Response;
 using LibraryManagementSystem.Application.Authentication.Interface;
 using LibraryManagementSystem.Application.Common;
 using LibraryManagementSystem.Domain.Entity;
@@ -27,30 +28,45 @@ namespace LibraryManagementSystem.Infrastructure.Repository.Authentication
             _authHelper = authHelper;
         }
 
-        public async Task<Result<string>> LoginAsync(string email, string password)
+        public async Task<Result<LoginResponseModel>> LoginAsync(string email, string password)
         {
             try
             {
                 var user = await _userManager.FindByEmailAsync(email);
                 if(user == null)
                 {
-                    return Result<string>.Failure("Invalid userName or password.", System.Net.HttpStatusCode.Unauthorized);
+                    return Result<LoginResponseModel>.Failure("Invalid userName or password.", System.Net.HttpStatusCode.Unauthorized);
                 }
 
                 var isValidPassword = await _signInManager.CheckPasswordSignInAsync(user, password, false);
                 if(!isValidPassword.Succeeded)
                 {
-                    return Result<string>.Failure("Invalid userName or password", System.Net.HttpStatusCode.Unauthorized);
+                    return Result<LoginResponseModel>.Failure("Invalid userName or password", System.Net.HttpStatusCode.Unauthorized);
                 }
 
+                var roles = await _userManager.GetRolesAsync(user);
+                var primaryRole = roles.FirstOrDefault() ?? "User";
+
                 var jwtToken = _authHelper.GenerateToken(user);
-                return Result<string>.Success("Login successful.", jwtToken, System.Net.HttpStatusCode.OK);
+
+                var responseData = new LoginResponseModel
+                {
+                    Data = jwtToken,
+                    User = new UserDto
+                    {
+                        email = user.Email ?? string.Empty,
+                        role = primaryRole,
+                        firstName = user.firstName,
+                        lastName = user.lastName,
+                    }
+                };
+                return Result<LoginResponseModel>.Success("Login successful.", responseData, System.Net.HttpStatusCode.OK);
 
             }
             catch (Exception ex)
             {
                 _logger.LogError($"An unexpected error occurred: {ex.Message}");
-                return Result<string>.Failure($"An unexpected error occurred", System.Net.HttpStatusCode.InternalServerError);
+                return Result<LoginResponseModel>.Failure($"An unexpected error occurred", System.Net.HttpStatusCode.InternalServerError);
             }
         }
 
