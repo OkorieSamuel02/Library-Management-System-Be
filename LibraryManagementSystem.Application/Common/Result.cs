@@ -1,4 +1,5 @@
-﻿using System;
+﻿using LibraryManagementSystem.Application.Authentication.DataTransferObject.Response;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
@@ -13,6 +14,7 @@ namespace LibraryManagementSystem.Application.Common
         public bool IsSuccess { get; set; } = false;
         public T? Data { get; set; } 
         public HttpStatusCode statusCode { get; set; }
+        public UserDto? User { get; set; }
 
 
         public static Result<T> Success(string message, T data, HttpStatusCode code)
@@ -25,6 +27,20 @@ namespace LibraryManagementSystem.Application.Common
                 statusCode = code
             };
         }
+
+        public static Result<T> Success(string message, T data, HttpStatusCode statusCode, UserDto user = null!)
+        {
+            return new Result<T>
+            {
+                Data = data,
+                message = message,
+                IsSuccess = true,
+                statusCode = statusCode,
+                User = user
+
+            };
+        }
+     
 
         public static Result<T> Failure(string message, HttpStatusCode code)
         {

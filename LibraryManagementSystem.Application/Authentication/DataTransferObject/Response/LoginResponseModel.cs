@@ -8,7 +8,6 @@ namespace LibraryManagementSystem.Application.Authentication.DataTransferObject.
 {
     public class LoginResponseModel
     {
-        public string Data { get; set; } = string.Empty; 
         public UserDto User { get; set; } = new UserDto();
     }
 

@@ -12,6 +12,6 @@ namespace LibraryManagementSystem.Application.Authentication.Interface
     public interface IUserService
     {
         Task<Result<string>> CreateUserAsync(RegisterRequestModel register);
-        Task<Result<LoginResponseModel>> LoginAsync(string email, string password);
+        Task<Result<string>> LoginAsync(string email, string password);
     }
 }

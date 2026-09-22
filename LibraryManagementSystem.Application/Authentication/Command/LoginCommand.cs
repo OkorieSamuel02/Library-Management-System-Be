@@ -10,20 +10,20 @@ using System.Threading.Tasks;
 
 namespace LibraryManagementSystem.Application.Authentication.Command
 {
-    public class LoginCommand : IRequest<Result<LoginResponseModel>>
+    public class LoginCommand : IRequest<Result<string>>
     {
         public string email { get; set; } = string.Empty;
         public string password { get; set; } = string.Empty;
     }
 
-    public class LoginCommandHandler : IRequestHandler<LoginCommand, Result<LoginResponseModel>>
+    public class LoginCommandHandler : IRequestHandler<LoginCommand, Result<string>>
     {
         private readonly IUserService _userService;
         public LoginCommandHandler(IUserService userService)
         {
              _userService = userService;
         }
-        public Task<Result<LoginResponseModel>> Handle(LoginCommand request, CancellationToken cancellationToken)
+        public Task<Result<string>> Handle(LoginCommand request, CancellationToken cancellationToken)
         {
             return _userService.LoginAsync(request.email, request.password);
         }
